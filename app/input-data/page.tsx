@@ -13,7 +13,7 @@ const InputData: NextPage = () => {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             
-            <div className="flex flex-col min-h-screen">
+            <div className="flex flex-col min-h-screen bg-gray-50">
                 <Navbar />
                 <main className="flex-1 p-6">
                     <div className="flex flex-col min-h-screen">
