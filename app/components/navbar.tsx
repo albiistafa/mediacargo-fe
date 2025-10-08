@@ -57,11 +57,6 @@ const pathname = usePathname();
                     {/* Add user avatar image here if available */}
                 </div>
                 <span className="font-medium">Berlian</span>
-                <button className="text-gray-600">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 3v18M3 12h18" />
-                    </svg>
-                </button>
             </div>
         </nav>
     );

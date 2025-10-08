@@ -11,23 +11,9 @@ export default function Home() {
             Situs Tracking PT. Media Realindo Express
           </p>
         </div>
-
-        {/* Logo Image
-                    <div className="relative w-96 h-40">
-                        <Image 
-                            src="/logo-eagle.png"
-                            alt="Eagle Logo"
-                            fill
-                            style={{ objectFit: 'contain' }}
-                        />
-                    </div> */}
-
-        {/* Login Button */}
         <Link
-          href="/auth"
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg 
-                                 text-lg font-medium hover:bg-blue-700 
-                                 transition-colors shadow-lg"
+          href="/login"
+          className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors shadow-lg"
         >
           Login
         </Link>

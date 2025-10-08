@@ -1,36 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import Topbar from "../components/topbar";
-import Footer from "../components/footer";
-import { login } from "../../services/auth";
-import { useRouter } from "next/navigation";
+import Topbar from "@/app/components/topbar";
+import Footer from "@/app/components/footer";
+import { useLogin } from "@/app/(auth)/login/useLogin";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await login(email, password);
-      console.log("Login sukses:", data);
-
-      localStorage.setItem("token", data.token);
-
-      setSuccess(true); 
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Login gagal");
-      setLoading(false); 
-    }
-  };
+  const { email, setEmail, password, setPassword, handleSubmit, loading, success, error } = useLogin();
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -1,5 +1,5 @@
-import Navbar from '../components/navbar';
-import Footer from '../components/footer';
+import Navbar from '@/app/components/navbar';
+import Footer from '@/app/components/footer';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import InputDataForm from './components/InputDataForm';
