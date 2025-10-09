@@ -1,3 +1,13 @@
+export interface RuteItem {
+  rute_id: string;
+  urutan: number;
+}
+
+export interface RuteOption {
+  id: string;
+  rute: string;
+}
+
 export interface FormData {
   noSuratJalan: string;
   noSeal: string;
@@ -11,14 +21,16 @@ export interface FormData {
   jenisTrip: string;
   waktuBerangkat: string;
   waktuTiba: string;
-  rateSebelumTax: string;
+  rateSebelumTax: string; 
   ppn: string;
   pph: string;
   totalSetelahTax: string;
   keterangan: string;
   noInvoice: string;
+  ruteList: RuteItem[];
 }
 
 export interface InputDataFormProps {
-  // Props bisa ditambahkan di sini jika diperlukan
+  initialData?: Partial<FormData>;
+  onSubmit?: (data: FormData) => void;
 }

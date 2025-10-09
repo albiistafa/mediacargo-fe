@@ -18,7 +18,7 @@ const pathname = usePathname();
                         height={24}
                     />
                 </div>
-                <Link href="/" className="text-xl font-semibold">
+                <Link href="/dashboard" className="text-xl font-semibold">
                     MediaCargo
                 </Link>
             </div>

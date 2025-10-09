@@ -1,116 +1,226 @@
 'use client';
 
-import { useState, ChangeEvent, FormEvent } from 'react';
-import { FormData, InputDataFormProps } from '../types/formTypes';
+import { useEffect } from 'react';
+import { useInputData } from '@/app/(dashboard)/input-data/useInputData';
+import { fetchRuteList } from '@/services/rute.services';
+import { RuteOption } from '../types/formTypes'; // sesuaikan path
 
-const InputDataForm: React.FC<InputDataFormProps> = () => {
-  const [formData, setFormData] = useState<FormData>({
-    noSuratJalan: '',
-    noSeal: '',
-    nameDriver: '',
-    nameRute: '',
-    ruteType: '',
-    jenisRitase: '',
-    platNomor: '',
-    keteranganPlat: '',
-    jenisMobil: '',
-    jenisTrip: '',
-    waktuBerangkat: '',
-    waktuTiba: '',
-    rateSebelumTax: '',
-    ppn: '',
-    pph: '',
-    totalSetelahTax: '',
-    keterangan: '',
-    noInvoice: ''
-  });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+const InputDataForm: React.FC = () => {
+  const {
+    formData,
+    setRuteOptions,
+    ruteOptions,
+    loading,
+    error,
+    success,
+    handleChange,
+    handleSubmit,
+    handleReset,
+  } = useInputData();
+
+  useEffect(() => {
+  const loadRute = async () => {
+    try {
+      const res = await fetchRuteList();
+      if (res.success && res.data) {
+        // konversi id number → string
+        const converted: RuteOption[] = res.data.map(r => ({
+          id: r.id.toString(),
+          rute: r.rute,
+        }));
+        setRuteOptions(converted);
+      }
+    } catch (err) {
+      console.error('Gagal memuat rute:', err);
+    }
   };
+  loadRute();
+}, [setRuteOptions]);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    console.log('Form Data:', formData);
-    // Handle form submission logic here
-  };
-
-  // Fungsi untuk format currency (opsional)
-  const formatCurrency = (value: string): string => {
-    if (!value) return '';
-    return new Intl.NumberFormat('id-ID').format(Number(value));
-  };
 
   return (
-    <div className="">
-      
-      <form onSubmit={handleSubmit} className="form-container">
-        {/* No. Surat Jalan di Sistem */}
-        <div className="form-group">
-          <label htmlFor="noSurat">No. Surat Jalan di Sistem</label>
-          <input
-            type="text"
-            name="noSuratJalan"
-            value={formData.noSuratJalan}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="Masukkan nomor surat jalan"
-          />
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-xl shadow-md">
+      {/* ALERT */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 text-red-700 border border-red-400 rounded-md">
+          <strong>Error:</strong> {error}
         </div>
+      )}
 
-        
-          <div className="form-group">
-            <label htmlFor="noSeal">No. Seal</label>
+      {success && (
+        <div className="mb-4 p-4 bg-green-100 text-green-700 border border-green-400 rounded-md">
+          <strong>Berhasil!</strong> Data berhasil disimpan.
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+        {/* Grid untuk informasi dasar */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* No Surat Jalan */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              No. Surat Jalan <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              id="noSeal"
+              name="noSuratJalan"
+              value={formData.noSuratJalan}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              placeholder="Masukkan nomor surat jalan"
+              required
+            />
+          </div>
+
+          {/* No Seal */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              No. Seal <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
               name="noSeal"
               value={formData.noSeal}
               onChange={handleChange}
-              className="form-input"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="nameDriver">Nama Driver</label>
+          {/* Nama Driver */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Nama Driver <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              id="nameDriver"
               name="nameDriver"
               value={formData.nameDriver}
               onChange={handleChange}
-              className="form-input"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="nameRute">Nama Rute</label>
-            <select
-              id="nameRute"
-              name="nameRute"
-              value={formData.nameRute}
-              onChange={handleChange}
-              className="form-select"
-            >
-              <option value="">Pilih Rute</option>
-              <option value="rule1">Rute 1</option>
-              <option value="rule2">Rute 2</option>
-              <option value="rule3">Rute 3</option>
-            </select>
-          </div>
+        {/* Pilihan Rute */}
+        <div>
+          <label className="block mb-2 font-semibold text-gray-700">
+            Rute <span className="text-red-500">*</span>
+          </label>
+          
+          {formData.ruteList.map((r, index) => (
+            <div key={index} className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm text-gray-600 font-medium">Rute {index + 1}:</span>
+                {formData.ruteList.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = formData.ruteList.filter((_, i) => i !== index);
+                      // Update urutan
+                      updated.forEach((rute, i) => {
+                        rute.urutan = i + 1;
+                      });
+                      handleChange({ target: { name: "ruteList", value: updated } });
+                    }}
+                    className="text-red-500 hover:text-red-700 text-sm"
+                  >
+                    Hapus
+                  </button>
+                )}
+              </div>
+              
+              {/* Dropdown dan Input Manual - Layout Responsif */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                {/* Dropdown */}
+                <div className="flex-1">
+                  <select
+                    value="" // Selalu kosong untuk placeholder
+                    onChange={(e) => {
+                      const selectedRuteId = e.target.value;
+                      if (selectedRuteId) {
+                        // Cari nama rute berdasarkan ID
+                        const selectedRute = ruteOptions?.find(rute => rute.id === selectedRuteId);
+                        const ruteName = selectedRute ? selectedRute.rute : "";
+                        
+                        const updated = [...formData.ruteList];
+                        updated[index].rute_id = ruteName; // Simpan nama rute, bukan ID
+                        updated[index].urutan = index + 1;
 
-          <div className="form-group">
-            <label htmlFor="ruteType">Rute Utama / Rute Cabang</label>
+                        // jika pilih dropdown terakhir, tambahkan baris baru
+                        if (index === formData.ruteList.length - 1) {
+                          updated.push({ rute_id: "", urutan: index + 2 });
+                        }
+
+                        handleChange({ target: { name: "ruteList", value: updated } });
+                      }
+                    }}
+                    className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+                  >
+                    <option value="">Pilih Rute ke-{index + 1}</option>
+                    {ruteOptions?.map((rute) => (
+                      <option key={rute.id} value={rute.id}>
+                        {rute.rute}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Input Manual */}
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    placeholder="Atau ketik manual jika tidak ada pilihan"
+                    value={r.rute_id || ""}
+                    onChange={(e) => {
+                      const updated = [...formData.ruteList];
+                      updated[index].rute_id = e.target.value || "";
+                      updated[index].urutan = index + 1;
+
+                      // jika input manual di baris terakhir, tambahkan baris baru
+                      if (e.target.value && index === formData.ruteList.length - 1) {
+                        updated.push({ rute_id: "", urutan: index + 2 });
+                      }
+
+                      handleChange({ target: { name: "ruteList", value: updated } });
+                    }}
+                    className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {/* Tombol tambah rute */}
+          <button
+            type="button"
+            onClick={() => {
+              const updated = [...formData.ruteList];
+              updated.push({ rute_id: "", urutan: formData.ruteList.length + 1 });
+              handleChange({ target: { name: "ruteList", value: updated } });
+            }}
+            className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
+          >
+            <span>+</span> Tambah Rute
+          </button>
+        </div>
+
+
+        {/* Grid untuk jenis rute dan ritase */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Rute Type */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Rute Utama / Cabang <span className="text-red-500">*</span>
+            </label>
             <select
-              id="ruteType"
               name="ruteType"
               value={formData.ruteType}
               onChange={handleChange}
-              className="form-select"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             >
               <option value="">Pilih Jenis Rute</option>
               <option value="utama">Rute Utama</option>
@@ -118,349 +228,234 @@ const InputDataForm: React.FC<InputDataFormProps> = () => {
             </select>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="jenisRitase">Jenis Ritase (Regular / Dorongan)</label>
+          {/* Jenis Ritase */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Jenis Ritase <span className="text-red-500">*</span>
+            </label>
             <select
-              id="jenisRitaee"
-              name="jenisRitaee"
+              name="jenisRitase"
               value={formData.jenisRitase}
               onChange={handleChange}
-              className="form-select"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             >
               <option value="">Pilih Jenis Ritase</option>
               <option value="regular">Regular</option>
               <option value="dorongan">Dorongan</option>
             </select>
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="platNomor">Plat Nomor Kendaraan</label>
+        {/* Grid untuk informasi kendaraan */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Plat Nomor */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Plat Nomor <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              id="platNomor"
               name="platNomor"
               value={formData.platNomor}
               onChange={handleChange}
               placeholder="Contoh: B 1234 CD"
-              className="form-input"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="keteranganPlat">Keterangan Plat Nomor</label>
+          {/* Keterangan Plat */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Keterangan Plat <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              id="keteranganPlat"
               name="keteranganPlat"
               value={formData.keteranganPlat}
               onChange={handleChange}
-              placeholder="Contoh: Kuning, Hitam"
-              className="form-input"
+              placeholder="Contoh: Kuning / Hitam"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="jenisMobil">Jenis Mobil</label>
+          {/* Jenis Mobil */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Jenis Mobil <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              id="jenisMobil"
               name="jenisMobil"
               value={formData.jenisMobil}
               onChange={handleChange}
-              placeholder="Contoh: CDDL"
-              className="form-input"
+              placeholder="Contoh: CDD / Tronton"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="jenisTrip">Jenis Trip</label>
+          {/* Jenis Trip */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Jenis Trip <span className="text-red-500">*</span>
+            </label>
             <select
-              id="jenisTrip"
               name="jenisTrip"
               value={formData.jenisTrip}
               onChange={handleChange}
-              className="form-select"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             >
               <option value="">Pilih Jenis Trip</option>
               <option value="sekali_jalan">Sepihak</option>
               <option value="pulang_pergi">Dua Pihak</option>
             </select>
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="waktuBerangkat">Waktu Berangkat Mobil</label>
+        {/* Grid untuk waktu */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Waktu Berangkat */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Waktu Berangkat <span className="text-red-500">*</span>
+            </label>
             <input
               type="datetime-local"
-              id="waktuBerangkat"
               name="waktuBerangkat"
               value={formData.waktuBerangkat}
               onChange={handleChange}
-              className="form-input"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="waktuTiba">Waktu Tiba Mobil</label>
+          {/* Waktu Tiba */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Waktu Tiba <span className="text-red-500">*</span>
+            </label>
             <input
               type="datetime-local"
-              id="waktuTiba"
               name="waktuTiba"
               value={formData.waktuTiba}
               onChange={handleChange}
-              className="form-input"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="rateSebelumTax">Rate Sebelum Tax</label>
-            <div className="input-with-currency">
-              <span className="currency">Rp.</span>
+        {/* Grid untuk rate dan tax */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Rate Sebelum Tax */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Rate Sebelum Tax <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center">
+              <span className="mr-2 text-gray-600 font-semibold">Rp</span>
               <input
                 type="number"
-                id="rateSebelumTax"
                 name="rateSebelumTax"
                 value={formData.rateSebelumTax}
                 onChange={handleChange}
-                placeholder="Contoh: 870000"
-                className="form-input currency-input"
+                className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+                required
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="ppn">PPN 1,1%</label>
-            <div className="input-with-currency">
-              <span className="currency">Rp.</span>
-              <input
-                type="number"
-                id="ppn"
-                name="ppn"
-                value={formData.ppn}
-                onChange={handleChange}
-                placeholder="Contoh: 870000"
-                className="form-input currency-input"
-              />
-            </div>
+          {/* PPN */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">PPN 1.1%</label>
+            <input
+              type="number"
+              name="ppn"
+              value={formData.ppn}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+            />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="pph">PPH 2%</label>
-            <div className="input-with-currency">
-              <span className="currency">Rp.</span>
-              <input
-                type="number"
-                id="pph"
-                name="pph"
-                value={formData.pph}
-                onChange={handleChange}
-                placeholder="Contoh: 870000"
-                className="form-input currency-input"
-              />
-            </div>
+          {/* PPH */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">PPH 2%</label>
+            <input
+              type="number"
+              name="pph"
+              value={formData.pph}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+            />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="totalSetelahTax">Total Setelah Tax</label>
-            <div className="input-with-currency">
-              <span className="currency">Rp.</span>
-              <input
-                type="number"
-                id="totalSetelahTax"
-                name="totalSetelahTax"
-                value={formData.totalSetelahTax}
-                onChange={handleChange}
-                placeholder="Contoh: 870000"
-                className="form-input currency-input"
-              />
-            </div>
+          {/* Total Setelah Tax */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">Total Setelah Tax</label>
+            <input
+              type="number"
+              name="totalSetelahTax"
+              value={formData.totalSetelahTax}
+              readOnly
+              className="w-full border bg-gray-100 rounded-lg px-3 py-2"
+            />
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="keterangan">Keterangan</label>
+        {/* Grid untuk keterangan dan invoice */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Keterangan */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">Keterangan</label>
             <textarea
-              id="keterangan"
               name="keterangan"
               value={formData.keterangan}
               onChange={handleChange}
-              placeholder="Tambahkan keterangan..."
-              className="form-textarea"
               rows={3}
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
             />
           </div>
-        
 
-          <div className="form-group">
-            <label htmlFor="noInvoice">No Invoice</label>
+          {/* No Invoice */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              No Invoice <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               name="noInvoice"
               value={formData.noInvoice}
               onChange={handleChange}
-              placeholder="Contoh: 6.2088, 106.8456"
-              className="form-input"
+              placeholder="Contoh: INV-2025-001"
+              className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              required
             />
           </div>
-        
+        </div>
 
-        <div className="form-actions">
-          <button type="submit" className="submit-button">
-            Simpan Data
+        {/* BUTTONS */}
+        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-4">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-5 py-2 rounded-lg disabled:bg-gray-400 transition-colors"
+            disabled={loading}
+          >
+            Reset
+          </button>
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg disabled:bg-blue-400 transition-colors"
+            disabled={loading}
+          >
+            {loading ? 'Menyimpan...' : 'Simpan Data'}
           </button>
         </div>
       </form>
-
-      <style jsx>{`
-        .container {
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
-          font-family: Arial, sans-serif;
-        }
-
-        h1 {
-          text-align: center;
-          color: #333;
-          margin-bottom: 30px;
-        }
-
-        .form-container {
-          background: #fff;
-          padding: 30px;
-          border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .section {
-          margin-bottom: 30px;
-        }
-
-        .section-label {
-          font-weight: bold;
-          color: #666;
-          display: block;
-          margin-bottom: 10px;
-        }
-
-        .section-title {
-          color: #333;
-          border-bottom: 2px solid #e0e0e0;
-          padding-bottom: 10px;
-          margin-bottom: 20px;
-        }
-
-        .form-group {
-          margin-bottom: 20px;
-        }
-
-        label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: bold;
-          color: #555;
-        }
-
-        .form-input, .form-select, .form-textarea {
-          width: 100%;
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 14px;
-          box-sizing: border-box;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-          outline: none;
-          border-color: #0070f3;
-          box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
-        }
-
-        .input-with-currency {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-
-        .currency {
-          position: absolute;
-          left: 10px;
-          color: #666;
-          z-index: 1;
-          font-weight: bold;
-        }
-
-        .currency-input {
-          padding-left: 35px;
-        }
-
-        .divider {
-          height: 1px;
-          background: #e0e0e0;
-          margin: 30px 0;
-        }
-
-        .form-actions {
-          text-align: center;
-          margin-top: 30px;
-          display: flex;
-          gap: 15px;
-          justify-content: center;
-        }
-
-        .submit-button {
-          background: #0070f3;
-          color: white;
-          padding: 12px 30px;
-          border: none;
-          border-radius: 4px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-
-        .submit-button:hover {
-          background: #0051a8;
-        }
-
-        .reset-button {
-          background: #6c757d;
-          color: white;
-          padding: 12px 30px;
-          border: none;
-          border-radius: 4px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-
-        .reset-button:hover {
-          background: #545b62;
-        }
-
-        .footer {
-          text-align: center;
-          margin-top: 30px;
-          color: #666;
-          font-size: 12px;
-        }
-
-        @media (max-width: 768px) {
-          .container {
-            padding: 10px;
-          }
-          
-          .form-container {
-            padding: 20px;
-          }
-
-          .form-actions {
-            flex-direction: column;
-          }
-
-          .submit-button, .reset-button {
-            width: 100%;
-          }
-        }
-      `}</style>
     </div>
   );
 };

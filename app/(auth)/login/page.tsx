@@ -4,46 +4,58 @@ import Footer from "@/app/components/footer";
 import { useLogin } from "@/app/(auth)/login/useLogin";
 
 export default function LoginPage() {
-  const { email, setEmail, password, setPassword, handleSubmit, loading, success, error } = useLogin();
+  const { 
+    email, 
+    setEmail, 
+    password, 
+    setPassword, 
+    handleSubmit, 
+    loading, 
+    success, 
+    error 
+  } = useLogin();
 
   return (
     <div className="min-h-screen flex flex-col">
       <Topbar />
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <main className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
             Masuk
           </h2>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-gray-700 mb-2" htmlFor="email">
+              <label htmlFor="email" className="block text-gray-700 mb-2">
                 Email
               </label>
               <input
                 id="email"
                 type="email"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
             <div>
-              <label className="block text-gray-700 mb-2" htmlFor="password">
+              <label htmlFor="password" className="block text-gray-700 mb-2">
                 Password
               </label>
               <input
                 id="password"
                 type="password"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
             {error && <p className="text-red-500 text-sm">{error}</p>}
+
             <button
               type="submit"
               disabled={loading || success}
@@ -77,14 +89,15 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
           <div className="mt-4 text-center text-sm text-gray-600">
             Lupa password?{" "}
-            <a href="/auth/register" className="text-blue-600 hover:underline">
+            <a href="/auth/forgot-password" className="text-blue-600 hover:underline">
               Ubah password
             </a>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   );
